@@ -24,6 +24,7 @@ public class GameActivity extends AppCompatActivity {
     private final String YOU_TAKE_AWAY = "Вы забираете карту";
     private final String AI_TAKES_AWAY = "Компьютер забирает карту";
     private final String STATUS_WAITING_FOR_YOU = "ожидается ваш ход";
+    private int position = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,27 +40,79 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void onClick(View v) {
+        makeAMove(position);
+    }
+
+    private void makeAMove(int pos) {
         ivPlayerCard.setVisibility(View.VISIBLE);
-        ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(0).getResource()));
-        ivPlayerCard.setImageDrawable(getResources().getDrawable(playerCards.get(0).getResource()));
-        int playerCardWeight = playerCards.get(0).getWeight();
-        int aiCardWeight = aiCards.get(0).getWeight();
+        ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(pos).getResource()));
+        ivPlayerCard.setImageDrawable(getResources().getDrawable(playerCards.get(pos).getResource()));
+        int playerCardWeight = playerCards.get(pos).getWeight();
+        int aiCardWeight = aiCards.get(pos).getWeight();
         System.out.println("player: " + playerCardWeight + " ai: " + aiCardWeight);
         if (playerCardWeight > aiCardWeight) {
             tvStatus.setText(STATUS_FRAGMENT + YOU_TAKE_AWAY);
-            CardModel tmpCardModel = playerCards.get(0);
-            playerCards.remove(0);
+            CardModel tmpCardModel = playerCards.get(pos);
+            playerCards.remove(pos);
             playerCards.add(tmpCardModel);
-            playerCards.add(aiCards.get(0));
-            aiCards.remove(0);
-        } else {
+            playerCards.add(aiCards.get(pos));
+            if (position == 1) {
+                CardModel tmpCardModel1 = playerCards.get(0);
+                playerCards.remove(0);
+                playerCards.add(tmpCardModel1);
+                playerCards.add(aiCards.get(0));
+                aiCards.remove(0);
+                position = 0;
+            }
+            aiCards.remove(pos);
+            updateUI(playerCardWeight, aiCardWeight);
+        } else if (aiCardWeight > playerCardWeight) {
             tvStatus.setText(STATUS_FRAGMENT + AI_TAKES_AWAY);
-            CardModel tmpCardModel = aiCards.get(0);
-            aiCards.remove(0);
+            CardModel tmpCardModel = aiCards.get(pos);
+            aiCards.remove(pos);
             aiCards.add(tmpCardModel);
-            aiCards.add(playerCards.get(0));
-            playerCards.remove(0);
+            aiCards.add(playerCards.get(pos));
+            if (position == 1) {
+                CardModel tmpCardModel1 = aiCards.get(0);
+                aiCards.remove(0);
+                aiCards.add(tmpCardModel1);
+                aiCards.add(playerCards.get(0));
+                playerCards.remove(0);
+                position = 0;
+            }
+            playerCards.remove(pos);
+            updateUI(playerCardWeight, aiCardWeight);
+        } else {
+            solveConflict();
+            position = 1;
         }
+
+    }
+
+    private void solveConflict() {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(0).getResource()));
+                        ivAICard.setVisibility(View.VISIBLE);
+                        tvStatus.setText(STATUS_FRAGMENT + STATUS_WAITING_FOR_YOU);
+                    }
+                });
+            }
+        });
+        thread.start();
+    }
+
+    private void updateUI(int playerCardWeight, int aiCardWeight) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
