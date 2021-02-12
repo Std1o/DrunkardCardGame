@@ -2,6 +2,9 @@ package com.stdio.drunkardcardgame;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.animation.ObjectAnimator;
+import android.graphics.Path;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -95,7 +98,7 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -106,13 +109,46 @@ public class GameActivity extends AppCompatActivity {
                         tvAICardCount.setText(AI_CARD_COUNT_FRAGMENT + aiCards.size());
                         if (playerCardWeight > aiCardWeight) {
                             ivAICard.setVisibility(View.INVISIBLE);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                Path path = new Path();
+                                path.arcTo(0f, 0f, 1000f, 0f, 102f, 190f, true);
+                                ObjectAnimator animator = ObjectAnimator.ofFloat(ivPlayerCard, View.X, View.Y, path);
+                                animator.setDuration(1500);
+                                animator.start();
+                            }
                         } else {
                             ivPlayerCard.setVisibility(View.INVISIBLE);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                Path path = new Path();
+                                path.arcTo(0f, 0f, 1000f, 0f, 102f, 190f, true);
+                                ObjectAnimator animator = ObjectAnimator.ofFloat(ivAICard, View.X, View.Y, path);
+                                animator.setDuration(1500);
+                                animator.start();
+                            } else {
+                                // Create animator without using curved path
+                            }
                         }
                     }
                 });
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tvPlayerCardCount.setText(PLAYER_CARD_COUNT_FRAGMENT + playerCards.size());
+                        tvAICardCount.setText(AI_CARD_COUNT_FRAGMENT + aiCards.size());
+                        if (playerCardWeight > aiCardWeight) {
+                            ivPlayerCard.setVisibility(View.INVISIBLE);
+                        } else {
+                            ivAICard.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                });
+                try {
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
