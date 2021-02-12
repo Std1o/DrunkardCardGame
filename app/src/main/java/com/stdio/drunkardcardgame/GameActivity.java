@@ -24,6 +24,7 @@ public class GameActivity extends AppCompatActivity {
     private final String YOU_TAKE_AWAY = "Вы забираете карту";
     private final String AI_TAKES_AWAY = "Компьютер забирает карту";
     private final String STATUS_WAITING_FOR_YOU = "ожидается ваш ход";
+    private final String STATUS_CONFLICT = "возник спор";
     private int position = 0;
 
     @Override
@@ -83,33 +84,10 @@ public class GameActivity extends AppCompatActivity {
             playerCards.remove(pos);
             updateUI(playerCardWeight, aiCardWeight);
         } else {
-            solveConflict();
+            tvStatus.setText(STATUS_FRAGMENT + STATUS_CONFLICT + "\n" + STATUS_WAITING_FOR_YOU);
             position = 1;
         }
 
-    }
-
-    private void solveConflict() {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(0).getResource()));
-                        ivAICard.setVisibility(View.VISIBLE);
-                        tvStatus.setText(STATUS_FRAGMENT + STATUS_WAITING_FOR_YOU);
-                    }
-                });
-            }
-        });
-        thread.start();
     }
 
     private void updateUI(int playerCardWeight, int aiCardWeight) {
