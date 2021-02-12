@@ -3,7 +3,9 @@ package com.stdio.drunkardcardgame;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -14,24 +16,108 @@ public class GameActivity extends AppCompatActivity {
 
     private List<CardModel> playerCards = new ArrayList<>();
     private List<CardModel> aiCards = new ArrayList<>();
-    private ImageView ivAICard;
+    private ImageView ivAICard, ivPlayerCard;
+    private TextView tvStatus, tvPlayerCardCount, tvAICardCount;
+    private final String PLAYER_CARD_COUNT_FRAGMENT = "Кол-во карт\nу игрока: ";
+    private final String AI_CARD_COUNT_FRAGMENT = "Кол-во карт\nу компьютера: ";
+    private final String STATUS_FRAGMENT = "Статус: ";
+    private final String YOU_TAKE_AWAY = "Вы забираете карту";
+    private final String AI_TAKES_AWAY = "Компьютер забирает карту";
+    private final String STATUS_WAITING_FOR_YOU = "ожидается ваш ход";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        distributeCards(new CardsListHelper().getCards(), 18);
-        for (CardModel cardModel : playerCards) {
-            System.out.println(cardModel.getSuit() + " " + cardModel.getWeight());
+        try {
+            distributeCards(new CardsListHelper().getCards(), 18);
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
         }
-        ivAICard = findViewById(R.id.ivAICard);
+        initViews();
         ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(0).getResource()));
     }
 
-    private void distributeCards(ArrayList<CardModel> lst, int n) {
+    public void onClick(View v) {
+        ivPlayerCard.setVisibility(View.VISIBLE);
+        ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(0).getResource()));
+        ivPlayerCard.setImageDrawable(getResources().getDrawable(playerCards.get(0).getResource()));
+        int playerCardWeight = playerCards.get(0).getWeight();
+        int aiCardWeight = aiCards.get(0).getWeight();
+        System.out.println("player: " + playerCardWeight + " ai: " + aiCardWeight);
+        if (playerCardWeight > aiCardWeight) {
+            tvStatus.setText(STATUS_FRAGMENT + YOU_TAKE_AWAY);
+            CardModel tmpCardModel = playerCards.get(0);
+            playerCards.remove(0);
+            playerCards.add(tmpCardModel);
+            playerCards.add(aiCards.get(0));
+            aiCards.remove(0);
+        } else {
+            tvStatus.setText(STATUS_FRAGMENT + AI_TAKES_AWAY);
+            CardModel tmpCardModel = aiCards.get(0);
+            aiCards.remove(0);
+            aiCards.add(tmpCardModel);
+            aiCards.add(playerCards.get(0));
+            playerCards.remove(0);
+        }
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tvPlayerCardCount.setText(PLAYER_CARD_COUNT_FRAGMENT + playerCards.size());
+                        tvAICardCount.setText(AI_CARD_COUNT_FRAGMENT + aiCards.size());
+                        if (playerCardWeight > aiCardWeight) {
+                            ivAICard.setVisibility(View.INVISIBLE);
+                        } else {
+                            ivPlayerCard.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                });
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(0).getResource()));
+                        ivAICard.setVisibility(View.VISIBLE);
+                        ivPlayerCard.setVisibility(View.INVISIBLE);
+                        tvStatus.setText(STATUS_FRAGMENT + STATUS_WAITING_FOR_YOU);
+                    }
+                });
+            }
+        });
+        thread.start();
+    }
+
+    private void initViews() {
+        ivAICard = findViewById(R.id.ivAICard);
+        ivPlayerCard = findViewById(R.id.ivPlayerCard);
+        tvStatus = findViewById(R.id.tvStatus);
+        tvPlayerCardCount = findViewById(R.id.tvPlayerCardCount);
+        tvAICardCount = findViewById(R.id.tvAICardCount);
+    }
+
+    private void distributeCards(ArrayList<CardModel> lst, int n) throws CloneNotSupportedException {
         List<CardModel> copy = new ArrayList<>(lst);
         Collections.shuffle(copy);
-        playerCards = copy.subList(0, n);
-        aiCards = copy.subList(n, copy.size());
+        playerCards = cloneList(copy.subList(0, n));
+        aiCards = cloneList(copy.subList(n, copy.size()));
+    }
+
+    public static List<CardModel> cloneList(List<CardModel> list) throws CloneNotSupportedException, NullPointerException {
+        List<CardModel> clone = new ArrayList<>(list.size());
+        for (CardModel item : list) clone.add(item.clone());
+        return clone;
     }
 }

@@ -1,6 +1,14 @@
 package com.stdio.drunkardcardgame;
 
-public class CardModel {
+import androidx.annotation.NonNull;
+
+public class CardModel implements Cloneable{
+
+    @NonNull
+    @Override
+    public CardModel clone() throws CloneNotSupportedException {
+        return (CardModel) super.clone();
+    }
 
     private int resource, weight;
     String suit;
