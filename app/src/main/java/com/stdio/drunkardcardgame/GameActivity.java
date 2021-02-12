@@ -114,51 +114,13 @@ public class GameActivity extends AppCompatActivity {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        tvPlayerCardCount.setText(PLAYER_CARD_COUNT_FRAGMENT + playerCards.size());
-                        tvAICardCount.setText(AI_CARD_COUNT_FRAGMENT + aiCards.size());
-                        if (playerCardWeight > aiCardWeight) {
-                            ivAICard.setVisibility(View.INVISIBLE);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                Path path = new Path();
-                                path.arcTo(0f, 0f, 1000f, 0f, 102f, 190f, true);
-                                ObjectAnimator animator = ObjectAnimator.ofFloat(ivPlayerCard, View.X, View.Y, path);
-                                animator.setDuration(1500);
-                                animator.start();
-                            }
-                        } else {
-                            ivPlayerCard.setVisibility(View.INVISIBLE);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                Path path = new Path();
-                                path.arcTo(0f, 0f, 1000f, 0f, 102f, 190f, true);
-                                ObjectAnimator animator = ObjectAnimator.ofFloat(ivAICard, View.X, View.Y, path);
-                                animator.setDuration(1500);
-                                animator.start();
-                            } else {
-                                // Create animator without using curved path
-                            }
-                        }
-                    }
-                });
+                moveCard(playerCardWeight, aiCardWeight);
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        tvPlayerCardCount.setText(PLAYER_CARD_COUNT_FRAGMENT + playerCards.size());
-                        tvAICardCount.setText(AI_CARD_COUNT_FRAGMENT + aiCards.size());
-                        if (playerCardWeight > aiCardWeight) {
-                            ivPlayerCard.setVisibility(View.INVISIBLE);
-                        } else {
-                            ivAICard.setVisibility(View.INVISIBLE);
-                        }
-                    }
-                });
+                hideCard(playerCardWeight, aiCardWeight);
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
@@ -177,6 +139,52 @@ public class GameActivity extends AppCompatActivity {
             }
         });
         thread.start();
+    }
+
+    private void moveCard(int playerCardWeight, int aiCardWeight) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvPlayerCardCount.setText(PLAYER_CARD_COUNT_FRAGMENT + playerCards.size());
+                tvAICardCount.setText(AI_CARD_COUNT_FRAGMENT + aiCards.size());
+                if (playerCardWeight > aiCardWeight) {
+                    ivAICard.setVisibility(View.INVISIBLE);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        Path path = new Path();
+                        path.arcTo(0f, 0f, 1000f, 0f, 102f, 190f, true);
+                        ObjectAnimator animator = ObjectAnimator.ofFloat(ivPlayerCard, View.X, View.Y, path);
+                        animator.setDuration(1500);
+                        animator.start();
+                    }
+                } else {
+                    ivPlayerCard.setVisibility(View.INVISIBLE);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        Path path = new Path();
+                        path.arcTo(0f, 0f, 1000f, 0f, 102f, 190f, true);
+                        ObjectAnimator animator = ObjectAnimator.ofFloat(ivAICard, View.X, View.Y, path);
+                        animator.setDuration(1500);
+                        animator.start();
+                    } else {
+                        // Create animator without using curved path
+                    }
+                }
+            }
+        });
+    }
+
+    private void hideCard(int playerCardWeight, int aiCardWeight) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvPlayerCardCount.setText(PLAYER_CARD_COUNT_FRAGMENT + playerCards.size());
+                tvAICardCount.setText(AI_CARD_COUNT_FRAGMENT + aiCards.size());
+                if (playerCardWeight > aiCardWeight) {
+                    ivPlayerCard.setVisibility(View.INVISIBLE);
+                } else {
+                    ivAICard.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
     }
 
     private void initViews() {
