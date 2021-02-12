@@ -3,10 +3,12 @@ package com.stdio.drunkardcardgame;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.ObjectAnimator;
+import android.graphics.Color;
 import android.graphics.Path;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +31,7 @@ public class GameActivity extends AppCompatActivity {
     private final String STATUS_WAITING_FOR_YOU = "ожидается ваш ход";
     private final String STATUS_CONFLICT = "возник спор";
     private int position = 0;
+    Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +47,21 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void onClick(View v) {
-        makeAMove(position);
+        if (button.getText().equals("Сыграть заново")) recreate();
+        if (aiCards.size() < position) {
+            tvStatus.setText("Вы выиграли!");
+            tvStatus.setTextColor(Color.RED);
+            button.setEnabled(true);
+            button.setText("Сыграть заново");
+        } else if (playerCards.size() < position) {
+            tvStatus.setText("Вы проиграли");
+            tvStatus.setTextColor(Color.RED);
+            button.setEnabled(true);
+            button.setText("Сыграть заново");
+        } else {
+            button.setEnabled(false);
+            makeAMove(position);
+        }
     }
 
     private void makeAMove(int pos) {
@@ -53,7 +70,6 @@ public class GameActivity extends AppCompatActivity {
         ivPlayerCard.setImageDrawable(getResources().getDrawable(playerCards.get(pos).getResource()));
         int playerCardWeight = playerCards.get(pos).getWeight();
         int aiCardWeight = aiCards.get(pos).getWeight();
-        System.out.println("player: " + playerCardWeight + " ai: " + aiCardWeight);
         if (playerCardWeight > aiCardWeight) {
             giveCardsToPlayer(pos, playerCardWeight, aiCardWeight);
         } else if (aiCardWeight > playerCardWeight) {
@@ -61,8 +77,8 @@ public class GameActivity extends AppCompatActivity {
         } else {
             tvStatus.setText(STATUS_FRAGMENT + STATUS_CONFLICT + "\n" + STATUS_WAITING_FOR_YOU);
             position++;
+            button.setEnabled(true);
         }
-
     }
 
     private void giveCardsToPlayer(int pos, int playerCardWeight, int aiCardWeight) {
@@ -130,10 +146,23 @@ public class GameActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(0).getResource()));
-                        ivAICard.setVisibility(View.VISIBLE);
-                        ivPlayerCard.setVisibility(View.INVISIBLE);
-                        tvStatus.setText(STATUS_FRAGMENT + STATUS_WAITING_FOR_YOU);
+                        if (playerCardWeight == 0) {
+                            tvStatus.setText("Вы проиграли");
+                            tvStatus.setTextColor(Color.RED);
+                            button.setEnabled(true);
+                            button.setText("Сыграть заново");
+                        } else if (aiCardWeight == 0) {
+                            tvStatus.setText("Вы выиграли!");
+                            tvStatus.setTextColor(Color.RED);
+                            button.setEnabled(true);
+                            button.setText("Сыграть заново");
+                        } else {
+                            ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(0).getResource()));
+                            ivAICard.setVisibility(View.VISIBLE);
+                            ivPlayerCard.setVisibility(View.INVISIBLE);
+                            tvStatus.setText(STATUS_FRAGMENT + STATUS_WAITING_FOR_YOU);
+                            button.setEnabled(true);
+                        }
                     }
                 });
             }
@@ -193,6 +222,7 @@ public class GameActivity extends AppCompatActivity {
         tvStatus = findViewById(R.id.tvStatus);
         tvPlayerCardCount = findViewById(R.id.tvPlayerCardCount);
         tvAICardCount = findViewById(R.id.tvAICardCount);
+        button = findViewById(R.id.button);
     }
 
     private void distributeCards(ArrayList<CardModel> lst, int n) throws CloneNotSupportedException {
