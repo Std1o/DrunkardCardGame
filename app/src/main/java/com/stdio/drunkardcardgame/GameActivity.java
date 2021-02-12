@@ -55,46 +55,54 @@ public class GameActivity extends AppCompatActivity {
         int aiCardWeight = aiCards.get(pos).getWeight();
         System.out.println("player: " + playerCardWeight + " ai: " + aiCardWeight);
         if (playerCardWeight > aiCardWeight) {
-            tvStatus.setText(STATUS_FRAGMENT + YOU_TAKE_AWAY);
-            CardModel tmpCardModel = playerCards.get(pos);
-            playerCards.remove(pos);
-            playerCards.add(tmpCardModel);
-            playerCards.add(aiCards.get(pos));
-            if (position > 0) {
-                for (int i = 0; i < position; i++) {
-                    CardModel tmpCardModel1 = playerCards.get(0);
-                    playerCards.remove(0);
-                    playerCards.add(tmpCardModel1);
-                    playerCards.add(aiCards.get(0));
-                    aiCards.remove(0);
-                }
-                position = 0;
-            }
-            aiCards.remove(pos);
-            updateUI(playerCardWeight, aiCardWeight);
+            giveCardsToPlayer(pos, playerCardWeight, aiCardWeight);
         } else if (aiCardWeight > playerCardWeight) {
-            tvStatus.setText(STATUS_FRAGMENT + AI_TAKES_AWAY);
-            CardModel tmpCardModel = aiCards.get(pos);
-            aiCards.remove(pos);
-            aiCards.add(tmpCardModel);
-            aiCards.add(playerCards.get(pos));
-            if (position > 0) {
-                for (int i = 0; i < position; i++) {
-                    CardModel tmpCardModel1 = aiCards.get(0);
-                    aiCards.remove(0);
-                    aiCards.add(tmpCardModel1);
-                    aiCards.add(playerCards.get(0));
-                    playerCards.remove(0);
-                }
-                position = 0;
-            }
-            playerCards.remove(pos);
-            updateUI(playerCardWeight, aiCardWeight);
+            giveCardsToAI(pos, playerCardWeight, aiCardWeight);
         } else {
             tvStatus.setText(STATUS_FRAGMENT + STATUS_CONFLICT + "\n" + STATUS_WAITING_FOR_YOU);
             position++;
         }
 
+    }
+
+    private void giveCardsToPlayer(int pos, int playerCardWeight, int aiCardWeight) {
+        tvStatus.setText(STATUS_FRAGMENT + YOU_TAKE_AWAY);
+        CardModel tmpCardModel = playerCards.get(pos);
+        playerCards.remove(pos);
+        playerCards.add(tmpCardModel);
+        playerCards.add(aiCards.get(pos));
+        if (position > 0) {
+            for (int i = 0; i < position; i++) {
+                CardModel tmpCardModel1 = playerCards.get(0);
+                playerCards.remove(0);
+                playerCards.add(tmpCardModel1);
+                playerCards.add(aiCards.get(0));
+                aiCards.remove(0);
+            }
+            position = 0;
+        }
+        aiCards.remove(pos);
+        updateUI(playerCardWeight, aiCardWeight);
+    }
+
+    private void giveCardsToAI(int pos, int playerCardWeight, int aiCardWeight) {
+        tvStatus.setText(STATUS_FRAGMENT + AI_TAKES_AWAY);
+        CardModel tmpCardModel = aiCards.get(pos);
+        aiCards.remove(pos);
+        aiCards.add(tmpCardModel);
+        aiCards.add(playerCards.get(pos));
+        if (position > 0) {
+            for (int i = 0; i < position; i++) {
+                CardModel tmpCardModel1 = aiCards.get(0);
+                aiCards.remove(0);
+                aiCards.add(tmpCardModel1);
+                aiCards.add(playerCards.get(0));
+                playerCards.remove(0);
+            }
+            position = 0;
+        }
+        playerCards.remove(pos);
+        updateUI(playerCardWeight, aiCardWeight);
     }
 
     private void updateUI(int playerCardWeight, int aiCardWeight) {
