@@ -3,6 +3,7 @@ package com.stdio.drunkardcardgame;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ public class GameActivity extends AppCompatActivity {
 
     private List<CardModel> playerCards = new ArrayList<>();
     private List<CardModel> aiCards = new ArrayList<>();
+    private ImageView ivAICard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +24,8 @@ public class GameActivity extends AppCompatActivity {
         for (CardModel cardModel : playerCards) {
             System.out.println(cardModel.getSuit() + " " + cardModel.getWeight());
         }
+        ivAICard = findViewById(R.id.ivAICard);
+        ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(0).getResource()));
     }
 
     private void distributeCards(ArrayList<CardModel> lst, int n) {
