@@ -16,6 +16,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import static com.stdio.drunkardcardgame.Constants.*;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -23,13 +24,6 @@ public class GameActivity extends AppCompatActivity {
     private List<CardModel> aiCards = new ArrayList<>();
     private ImageView ivAICard, ivPlayerCard, ivAIReverseSide, ivPlayerReverseSide;
     private TextView tvStatus, tvPlayerCardCount, tvAICardCount;
-    private final String PLAYER_CARD_COUNT_FRAGMENT = "Кол-во карт\nу игрока: ";
-    private final String AI_CARD_COUNT_FRAGMENT = "Кол-во карт\nу компьютера: ";
-    private final String STATUS_FRAGMENT = "Статус: ";
-    private final String YOU_TAKE_AWAY = "Вы забираете карту";
-    private final String AI_TAKES_AWAY = "Компьютер забирает карту";
-    private final String STATUS_WAITING_FOR_YOU = "ожидается ваш ход";
-    private final String STATUS_CONFLICT = "возник спор";
     private int debt = 0;
     Button button;
 
@@ -122,6 +116,7 @@ public class GameActivity extends AppCompatActivity {
         playerCards.add(tmpCardModel);
         if (aiCards.size() > debt) playerCards.add(aiCards.get(debt));
         if (debt > 0) {
+            //remove cards from a dispute
             for (int i = 0; i < debt; i++) {
                 CardModel tmpCardModel1 = playerCards.get(0);
                 playerCards.remove(0);
@@ -144,6 +139,7 @@ public class GameActivity extends AppCompatActivity {
         aiCards.add(tmpCardModel);
         if (playerCards.size() > debt) aiCards.add(playerCards.get(debt));
         if (debt > 0) {
+            //remove cards from a dispute
             for (int i = 0; i < debt; i++) {
                 CardModel tmpCardModel1 = aiCards.get(0);
                 aiCards.remove(0);
