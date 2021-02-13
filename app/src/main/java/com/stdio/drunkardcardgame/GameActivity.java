@@ -93,9 +93,9 @@ public class GameActivity extends AppCompatActivity {
         ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(position).getResource()));
         int playerCardWeight = playerCards.get(position).getWeight();
         int aiCardWeight = aiCards.get(position).getWeight();
-        if (playerCardWeight > aiCardWeight) {
+        if (playerCardWeight > aiCardWeight || (playerCardWeight == 1 && aiCardWeight == 9)) {
             giveCardsToPlayer(playerCardWeight, aiCardWeight);
-        } else if (aiCardWeight > playerCardWeight) {
+        } else if (aiCardWeight > playerCardWeight || (aiCardWeight == 1 && playerCardWeight == 9)) {
             giveCardsToAI(playerCardWeight, aiCardWeight);
         } else {
             /*If the card weights are equal, a dispute arises, respectively,
@@ -202,7 +202,7 @@ public class GameActivity extends AppCompatActivity {
             public void run() {
                 tvPlayerCardCount.setText(PLAYER_CARD_COUNT_FRAGMENT + playerCards.size());
                 tvAICardCount.setText(AI_CARD_COUNT_FRAGMENT + aiCards.size());
-                if (playerCardWeight > aiCardWeight) {
+                if (playerCardWeight > aiCardWeight || (playerCardWeight == 1 && aiCardWeight == 9)) {
                     ivAICard.setVisibility(View.INVISIBLE);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         Path path = new Path();
@@ -233,7 +233,7 @@ public class GameActivity extends AppCompatActivity {
             public void run() {
                 tvPlayerCardCount.setText(PLAYER_CARD_COUNT_FRAGMENT + playerCards.size());
                 tvAICardCount.setText(AI_CARD_COUNT_FRAGMENT + aiCards.size());
-                if (playerCardWeight > aiCardWeight) {
+                if (playerCardWeight > aiCardWeight || (playerCardWeight == 1 && aiCardWeight == 9)) {
                     ivPlayerCard.setVisibility(View.INVISIBLE);
                 } else {
                     ivAICard.setVisibility(View.INVISIBLE);
