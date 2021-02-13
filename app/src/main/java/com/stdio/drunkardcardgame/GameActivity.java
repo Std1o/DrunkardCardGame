@@ -104,7 +104,7 @@ public class GameActivity extends AppCompatActivity {
         CardModel tmpCardModel = playerCards.get(pos);
         playerCards.remove(pos);
         playerCards.add(tmpCardModel);
-        playerCards.add(aiCards.get(pos));
+        if (aiCards.size() > pos) playerCards.add(aiCards.get(pos));
         if (position > 0) {
             for (int i = 0; i < position; i++) {
                 CardModel tmpCardModel1 = playerCards.get(0);
@@ -126,7 +126,7 @@ public class GameActivity extends AppCompatActivity {
         CardModel tmpCardModel = aiCards.get(pos);
         aiCards.remove(pos);
         aiCards.add(tmpCardModel);
-        aiCards.add(playerCards.get(pos));
+        if (playerCards.size() > pos) aiCards.add(playerCards.get(pos));
         if (position > 0) {
             for (int i = 0; i < position; i++) {
                 CardModel tmpCardModel1 = aiCards.get(0);
