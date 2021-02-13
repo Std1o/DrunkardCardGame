@@ -21,7 +21,7 @@ public class GameActivity extends AppCompatActivity {
 
     private List<CardModel> playerCards = new ArrayList<>();
     private List<CardModel> aiCards = new ArrayList<>();
-    private ImageView ivAICard, ivPlayerCard;
+    private ImageView ivAICard, ivPlayerCard, ivAIReverseSide, ivPlayerReverseSide;
     private TextView tvStatus, tvPlayerCardCount, tvAICardCount;
     private final String PLAYER_CARD_COUNT_FRAGMENT = "Кол-во карт\nу игрока: ";
     private final String AI_CARD_COUNT_FRAGMENT = "Кол-во карт\nу компьютера: ";
@@ -48,20 +48,36 @@ public class GameActivity extends AppCompatActivity {
 
     public void onClick(View v) {
         if (button.getText().equals("Сыграть заново")) recreate();
-        if (aiCards.size() < position) {
-            tvStatus.setText("Вы выиграли!");
-            tvStatus.setTextColor(Color.RED);
-            button.setEnabled(true);
-            button.setText("Сыграть заново");
-        } else if (playerCards.size() < position) {
-            tvStatus.setText("Вы проиграли");
-            tvStatus.setTextColor(Color.RED);
-            button.setEnabled(true);
-            button.setText("Сыграть заново");
-        } else {
-            button.setEnabled(false);
-            makeAMove(position);
+        else {
+            if (aiCards.size() <= position) {
+                giveCardsToPlayer(position, 1, 0);
+            } else if (playerCards.size() <= position) {
+                giveCardsToAI(position, 0, 1);
+            } else {
+                button.setEnabled(false);
+                makeAMove(position);
+            }
         }
+    }
+
+    private void win() {
+        tvStatus.setText("Вы выиграли!");
+        tvStatus.setTextColor(Color.GREEN);
+        button.setEnabled(true);
+        button.setText("Сыграть заново");
+        ivPlayerCard.setVisibility(View.INVISIBLE);
+        ivAICard.setVisibility(View.INVISIBLE);
+        ivAIReverseSide.setVisibility(View.INVISIBLE);
+    }
+
+    private void lose() {
+        tvStatus.setText("Вы проиграли");
+        tvStatus.setTextColor(Color.RED);
+        button.setEnabled(true);
+        button.setText("Сыграть заново");
+        ivPlayerCard.setVisibility(View.INVISIBLE);
+        ivAICard.setVisibility(View.INVISIBLE);
+        ivPlayerReverseSide.setVisibility(View.INVISIBLE);
     }
 
     private void makeAMove(int pos) {
@@ -75,6 +91,7 @@ public class GameActivity extends AppCompatActivity {
         } else if (aiCardWeight > playerCardWeight) {
             giveCardsToAI(pos, playerCardWeight, aiCardWeight);
         } else {
+            System.out.println(STATUS_FRAGMENT + STATUS_CONFLICT + "\n" + STATUS_WAITING_FOR_YOU);
             tvStatus.setText(STATUS_FRAGMENT + STATUS_CONFLICT + "\n" + STATUS_WAITING_FOR_YOU);
             position++;
             button.setEnabled(true);
@@ -82,6 +99,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void giveCardsToPlayer(int pos, int playerCardWeight, int aiCardWeight) {
+        System.out.println(STATUS_FRAGMENT + YOU_TAKE_AWAY);
         tvStatus.setText(STATUS_FRAGMENT + YOU_TAKE_AWAY);
         CardModel tmpCardModel = playerCards.get(pos);
         playerCards.remove(pos);
@@ -93,15 +111,17 @@ public class GameActivity extends AppCompatActivity {
                 playerCards.remove(0);
                 playerCards.add(tmpCardModel1);
                 playerCards.add(aiCards.get(0));
-                aiCards.remove(0);
+                if (aiCards.size() != 0) aiCards.remove(0);
             }
             position = 0;
+            pos = 0;
         }
-        aiCards.remove(pos);
+        if (aiCards.size() != 0) aiCards.remove(pos);
         updateUI(playerCardWeight, aiCardWeight);
     }
 
     private void giveCardsToAI(int pos, int playerCardWeight, int aiCardWeight) {
+        System.out.println(STATUS_FRAGMENT + AI_TAKES_AWAY);
         tvStatus.setText(STATUS_FRAGMENT + AI_TAKES_AWAY);
         CardModel tmpCardModel = aiCards.get(pos);
         aiCards.remove(pos);
@@ -113,11 +133,12 @@ public class GameActivity extends AppCompatActivity {
                 aiCards.remove(0);
                 aiCards.add(tmpCardModel1);
                 aiCards.add(playerCards.get(0));
-                playerCards.remove(0);
+                if (playerCards.size() != 0) playerCards.remove(0);
             }
             position = 0;
+            pos = 0;
         }
-        playerCards.remove(pos);
+        if (playerCards.size() != 0) playerCards.remove(pos);
         updateUI(playerCardWeight, aiCardWeight);
     }
 
@@ -146,16 +167,10 @@ public class GameActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (playerCardWeight == 0) {
-                            tvStatus.setText("Вы проиграли");
-                            tvStatus.setTextColor(Color.RED);
-                            button.setEnabled(true);
-                            button.setText("Сыграть заново");
-                        } else if (aiCardWeight == 0) {
-                            tvStatus.setText("Вы выиграли!");
-                            tvStatus.setTextColor(Color.RED);
-                            button.setEnabled(true);
-                            button.setText("Сыграть заново");
+                        if (playerCards.size() == 0) {
+                            lose();
+                        } else if (aiCards.size() == 0) {
+                            win();
                         } else {
                             ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(0).getResource()));
                             ivAICard.setVisibility(View.VISIBLE);
@@ -219,6 +234,8 @@ public class GameActivity extends AppCompatActivity {
     private void initViews() {
         ivAICard = findViewById(R.id.ivAICard);
         ivPlayerCard = findViewById(R.id.ivPlayerCard);
+        ivAIReverseSide = findViewById(R.id.ivAIReverseSide);
+        ivPlayerReverseSide = findViewById(R.id.ivPlayerReverseSide);
         tvStatus = findViewById(R.id.tvStatus);
         tvPlayerCardCount = findViewById(R.id.tvPlayerCardCount);
         tvAICardCount = findViewById(R.id.tvAICardCount);
