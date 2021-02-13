@@ -30,7 +30,7 @@ public class GameActivity extends AppCompatActivity {
     private final String AI_TAKES_AWAY = "Компьютер забирает карту";
     private final String STATUS_WAITING_FOR_YOU = "ожидается ваш ход";
     private final String STATUS_CONFLICT = "возник спор";
-    private int position = 0;
+    private int debt = 0;
     Button button;
 
     @Override
@@ -49,9 +49,9 @@ public class GameActivity extends AppCompatActivity {
     public void onClick(View v) {
         if (button.getText().equals("Сыграть заново")) recreate();
         else {
-            if (aiCards.size() <= position) {
+            if (aiCards.size() <= debt) {
                 giveCardsToPlayer(1, 0);
-            } else if (playerCards.size() <= position) {
+            } else if (playerCards.size() <= debt) {
                 giveCardsToAI(0, 1);
             } else {
                 button.setEnabled(false);
@@ -82,6 +82,14 @@ public class GameActivity extends AppCompatActivity {
 
     private void makeAMove() {
         ivPlayerCard.setVisibility(View.VISIBLE);
+        /*position - the index of the card that the player is currently placing.
+        The player places a card according to the amount debt,
+        because he can't give the card that is involved in the dispute.
+        Positions are indexed from 0. If the player owes nothing, he puts the first card (position = 0).
+        During the dispute, one of his cards is already occupied (but not yet lost),
+        he puts the second one (but position = 1, because the indexing is from 0,
+        and so it matches that the debt is also equal to 1)*/
+        int position = debt;
         ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(position).getResource()));
         ivPlayerCard.setImageDrawable(getResources().getDrawable(playerCards.get(position).getResource()));
         int playerCardWeight = playerCards.get(position).getWeight();
@@ -93,50 +101,52 @@ public class GameActivity extends AppCompatActivity {
         } else {
             System.out.println(STATUS_FRAGMENT + STATUS_CONFLICT + "\n" + STATUS_WAITING_FOR_YOU);
             tvStatus.setText(STATUS_FRAGMENT + STATUS_CONFLICT + "\n" + STATUS_WAITING_FOR_YOU);
-            position++;
+            debt++;
             button.setEnabled(true);
         }
     }
 
     private void giveCardsToPlayer(int playerCardWeight, int aiCardWeight) {
+        //debt == position, see the comment in the makeMove() method
         System.out.println(STATUS_FRAGMENT + YOU_TAKE_AWAY);
         tvStatus.setText(STATUS_FRAGMENT + YOU_TAKE_AWAY);
-        CardModel tmpCardModel = playerCards.get(position);
-        playerCards.remove(position);
+        CardModel tmpCardModel = playerCards.get(debt);
+        playerCards.remove(debt);
         playerCards.add(tmpCardModel);
-        if (aiCards.size() > position) playerCards.add(aiCards.get(position));
-        if (position > 0) {
-            for (int i = 0; i < position; i++) {
+        if (aiCards.size() > debt) playerCards.add(aiCards.get(debt));
+        if (debt > 0) {
+            for (int i = 0; i < debt; i++) {
                 CardModel tmpCardModel1 = playerCards.get(0);
                 playerCards.remove(0);
                 playerCards.add(tmpCardModel1);
                 playerCards.add(aiCards.get(0));
                 if (aiCards.size() != 0) aiCards.remove(0);
             }
-            position = 0;
+            debt = 0;
         }
-        if (aiCards.size() != 0) aiCards.remove(position);
+        if (aiCards.size() != 0) aiCards.remove(debt);
         updateUI(playerCardWeight, aiCardWeight);
     }
 
     private void giveCardsToAI(int playerCardWeight, int aiCardWeight) {
+        //debt == position, see the comment in the makeMove() method
         System.out.println(STATUS_FRAGMENT + AI_TAKES_AWAY);
         tvStatus.setText(STATUS_FRAGMENT + AI_TAKES_AWAY);
-        CardModel tmpCardModel = aiCards.get(position);
-        aiCards.remove(position);
+        CardModel tmpCardModel = aiCards.get(debt);
+        aiCards.remove(debt);
         aiCards.add(tmpCardModel);
-        if (playerCards.size() > position) aiCards.add(playerCards.get(position));
-        if (position > 0) {
-            for (int i = 0; i < position; i++) {
+        if (playerCards.size() > debt) aiCards.add(playerCards.get(debt));
+        if (debt > 0) {
+            for (int i = 0; i < debt; i++) {
                 CardModel tmpCardModel1 = aiCards.get(0);
                 aiCards.remove(0);
                 aiCards.add(tmpCardModel1);
                 aiCards.add(playerCards.get(0));
                 if (playerCards.size() != 0) playerCards.remove(0);
             }
-            position = 0;
+            debt = 0;
         }
-        if (playerCards.size() != 0) playerCards.remove(position);
+        if (playerCards.size() != 0) playerCards.remove(debt);
         updateUI(playerCardWeight, aiCardWeight);
     }
 
