@@ -50,12 +50,12 @@ public class GameActivity extends AppCompatActivity {
         if (button.getText().equals("Сыграть заново")) recreate();
         else {
             if (aiCards.size() <= position) {
-                giveCardsToPlayer(position, 1, 0);
+                giveCardsToPlayer(1, 0);
             } else if (playerCards.size() <= position) {
-                giveCardsToAI(position, 0, 1);
+                giveCardsToAI(0, 1);
             } else {
                 button.setEnabled(false);
-                makeAMove(position);
+                makeAMove();
             }
         }
     }
@@ -80,16 +80,16 @@ public class GameActivity extends AppCompatActivity {
         ivPlayerReverseSide.setVisibility(View.INVISIBLE);
     }
 
-    private void makeAMove(int pos) {
+    private void makeAMove() {
         ivPlayerCard.setVisibility(View.VISIBLE);
-        ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(pos).getResource()));
-        ivPlayerCard.setImageDrawable(getResources().getDrawable(playerCards.get(pos).getResource()));
-        int playerCardWeight = playerCards.get(pos).getWeight();
-        int aiCardWeight = aiCards.get(pos).getWeight();
+        ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(position).getResource()));
+        ivPlayerCard.setImageDrawable(getResources().getDrawable(playerCards.get(position).getResource()));
+        int playerCardWeight = playerCards.get(position).getWeight();
+        int aiCardWeight = aiCards.get(position).getWeight();
         if (playerCardWeight > aiCardWeight) {
-            giveCardsToPlayer(pos, playerCardWeight, aiCardWeight);
+            giveCardsToPlayer(playerCardWeight, aiCardWeight);
         } else if (aiCardWeight > playerCardWeight) {
-            giveCardsToAI(pos, playerCardWeight, aiCardWeight);
+            giveCardsToAI(playerCardWeight, aiCardWeight);
         } else {
             System.out.println(STATUS_FRAGMENT + STATUS_CONFLICT + "\n" + STATUS_WAITING_FOR_YOU);
             tvStatus.setText(STATUS_FRAGMENT + STATUS_CONFLICT + "\n" + STATUS_WAITING_FOR_YOU);
@@ -98,13 +98,13 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    private void giveCardsToPlayer(int pos, int playerCardWeight, int aiCardWeight) {
+    private void giveCardsToPlayer(int playerCardWeight, int aiCardWeight) {
         System.out.println(STATUS_FRAGMENT + YOU_TAKE_AWAY);
         tvStatus.setText(STATUS_FRAGMENT + YOU_TAKE_AWAY);
-        CardModel tmpCardModel = playerCards.get(pos);
-        playerCards.remove(pos);
+        CardModel tmpCardModel = playerCards.get(position);
+        playerCards.remove(position);
         playerCards.add(tmpCardModel);
-        if (aiCards.size() > pos) playerCards.add(aiCards.get(pos));
+        if (aiCards.size() > position) playerCards.add(aiCards.get(position));
         if (position > 0) {
             for (int i = 0; i < position; i++) {
                 CardModel tmpCardModel1 = playerCards.get(0);
@@ -114,19 +114,18 @@ public class GameActivity extends AppCompatActivity {
                 if (aiCards.size() != 0) aiCards.remove(0);
             }
             position = 0;
-            pos = 0;
         }
-        if (aiCards.size() != 0) aiCards.remove(pos);
+        if (aiCards.size() != 0) aiCards.remove(position);
         updateUI(playerCardWeight, aiCardWeight);
     }
 
-    private void giveCardsToAI(int pos, int playerCardWeight, int aiCardWeight) {
+    private void giveCardsToAI(int playerCardWeight, int aiCardWeight) {
         System.out.println(STATUS_FRAGMENT + AI_TAKES_AWAY);
         tvStatus.setText(STATUS_FRAGMENT + AI_TAKES_AWAY);
-        CardModel tmpCardModel = aiCards.get(pos);
-        aiCards.remove(pos);
+        CardModel tmpCardModel = aiCards.get(position);
+        aiCards.remove(position);
         aiCards.add(tmpCardModel);
-        if (playerCards.size() > pos) aiCards.add(playerCards.get(pos));
+        if (playerCards.size() > position) aiCards.add(playerCards.get(position));
         if (position > 0) {
             for (int i = 0; i < position; i++) {
                 CardModel tmpCardModel1 = aiCards.get(0);
@@ -136,9 +135,8 @@ public class GameActivity extends AppCompatActivity {
                 if (playerCards.size() != 0) playerCards.remove(0);
             }
             position = 0;
-            pos = 0;
         }
-        if (playerCards.size() != 0) playerCards.remove(pos);
+        if (playerCards.size() != 0) playerCards.remove(position);
         updateUI(playerCardWeight, aiCardWeight);
     }
 
