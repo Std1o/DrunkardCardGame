@@ -49,6 +49,9 @@ public class GameActivity extends AppCompatActivity {
     public void onClick(View v) {
         if (button.getText().equals("Сыграть заново")) recreate();
         else {
+            /*The debt is formed in the event of a dispute.
+            If a player/ai owes as many cards as he basically has or more
+            (that is, all of his cards are involved in the dispute), then the player has lost*/
             if (aiCards.size() <= debt) {
                 giveCardsToPlayer(1, 0);
             } else if (playerCards.size() <= debt) {
@@ -83,15 +86,17 @@ public class GameActivity extends AppCompatActivity {
     private void makeAMove() {
         ivPlayerCard.setVisibility(View.VISIBLE);
         /*position - the index of the card that the player is currently placing.
-        The player places a card according to the amount debt,
+        The player/ai places a card according to the amount debt,
         because he can't give the card that is involved in the dispute.
         Positions are indexed from 0. If the player owes nothing, he puts the first card (position = 0).
         During the dispute, one of his cards is already occupied (but not yet lost),
         he puts the second one (but position = 1, because the indexing is from 0,
         and so it matches that the debt is also equal to 1)*/
         int position = debt;
-        ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(position).getResource()));
         ivPlayerCard.setImageDrawable(getResources().getDrawable(playerCards.get(position).getResource()));
+        /*During the dispute, the player puts the next card first (presses the button),
+        so we put the card for the AI in accordance with the current position*/
+        ivAICard.setImageDrawable(getResources().getDrawable(aiCards.get(position).getResource()));
         int playerCardWeight = playerCards.get(position).getWeight();
         int aiCardWeight = aiCards.get(position).getWeight();
         if (playerCardWeight > aiCardWeight) {
@@ -99,6 +104,8 @@ public class GameActivity extends AppCompatActivity {
         } else if (aiCardWeight > playerCardWeight) {
             giveCardsToAI(playerCardWeight, aiCardWeight);
         } else {
+            /*If the card weights are equal, a dispute arises, respectively,
+            the debt of each player increases (debt - the count of cards involved in the dispute)*/
             System.out.println(STATUS_FRAGMENT + STATUS_CONFLICT + "\n" + STATUS_WAITING_FOR_YOU);
             tvStatus.setText(STATUS_FRAGMENT + STATUS_CONFLICT + "\n" + STATUS_WAITING_FOR_YOU);
             debt++;
